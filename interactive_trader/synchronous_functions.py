@@ -230,7 +230,7 @@ def fetch_matching_symbols(pattern, hostname=default_hostname,
     return app.matching_symbols
 
 def place_order(contract, order, hostname=default_hostname,
-                           port=default_port, client_id=default_client_id):
+                port=default_port, client_id=default_client_id):
 
     app = ibkr_app()
     app.connect(hostname, port, client_id)
