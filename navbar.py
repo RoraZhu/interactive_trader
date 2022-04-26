@@ -21,9 +21,10 @@ navbar = dbc.NavbarSimple(
             label="More",
         ),
     ],
-    brand="TEAM NAME",
+    brand="PIKACHU",
     brand_href="#",
     color="dark",
     dark=True,
     fluid=True,
+    style={"padding-right": "10px"}
 )

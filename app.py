@@ -49,12 +49,13 @@ app.layout = html.Div(
         sidebar,
         html.Div(id="page-content", style=CONTENT_STYLE),
         dcc.Interval(
-            id = 'ibkr-update-interval',
+            id='ibkr-update-interval',
             interval=5000,
             n_intervals=0
         )
     ],
 )
+
 
 @app.callback(
     [Output('trade-blotter', 'data'), Output('trade-blotter', 'columns')],
@@ -70,6 +71,7 @@ def update_order_status(n_intervals):
     dt_data = df.to_dict('records')
     dt_columns = [{"name": i, "id": i} for i in df.columns]
     return dt_data, dt_columns
+
 
 @app.callback(
     [Output('errors-dt', 'data'), Output('errors-dt', 'columns')],
@@ -194,7 +196,7 @@ def async_handler(async_status, master_client_id, port, hostname):
     global connected
     connected = ibkr_async_conn.isConnected()
 
-    return str(connected)
+    return "Connection is " + str(connected)
 
 @app.callback(
     Output('placeholder-div', 'children'),

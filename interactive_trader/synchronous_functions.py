@@ -7,7 +7,7 @@ from datetime import datetime
 # If you want different default values, configure it here.
 default_hostname = '127.0.0.1'
 default_port = 7497
-default_client_id = 10645 # can set and use your Master Client ID
+default_client_id = 1 # can set and use your Master Client ID
 timeout_sec = 5
 
 def fetch_managed_accounts(hostname=default_hostname, port=default_port,
