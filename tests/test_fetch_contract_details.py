@@ -7,10 +7,14 @@ class fetch_contract_details_test_case(unittest.TestCase):
 
     def setUp(self):
         contract = Contract()
-        contract.symbol = 'EUR'
-        contract.secType = 'CASH'
-        contract.exchange = 'IDEALPRO'
-        contract.currency = 'USD'
+        contract.symbol = "AAPL"
+        contract.secType = "OPT"
+        contract.exchange = "BOX"
+        contract.currency = "USD"
+        contract.lastTradeDateOrContractMonth = "20220429"
+        contract.strike = "160"
+        contract.right = "C"
+        contract.multiplier = "100"
         self.contract_details = fetch_contract_details(contract)
 
     def test_contract_details_is_dataframe(self):

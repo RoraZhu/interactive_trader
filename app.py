@@ -49,12 +49,13 @@ app.layout = html.Div(
         sidebar,
         html.Div(id="page-content", style=CONTENT_STYLE),
         dcc.Interval(
-            id = 'ibkr-update-interval',
+            id='ibkr-update-interval',
             interval=5000,
             n_intervals=0
         )
     ],
 )
+
 
 @app.callback(
     [Output('trade-blotter', 'data'), Output('trade-blotter', 'columns')],
@@ -70,6 +71,7 @@ def update_order_status(n_intervals):
     dt_data = df.to_dict('records')
     dt_columns = [{"name": i, "id": i} for i in df.columns]
     return dt_data, dt_columns
+
 
 @app.callback(
     [Output('errors-dt', 'data'), Output('errors-dt', 'columns')],
@@ -194,7 +196,7 @@ def async_handler(async_status, master_client_id, port, hostname):
     global connected
     connected = ibkr_async_conn.isConnected()
 
-    return str(connected)
+    return "Connection is " + str(connected)
 
 @app.callback(
     Output('placeholder-div', 'children'),
@@ -213,6 +215,8 @@ def async_handler(async_status, master_client_id, port, hostname):
     ],
     prevent_initial_call = True
 )
+
+
 def place_order(n_clicks):
                 # contract_symbol, contract_sec_type,
                 # contract_currency, contract_exchange,
@@ -231,7 +235,7 @@ def place_order(n_clicks):
     AAPL_call_contract = Contract()
     AAPL_call_contract.symbol = "AAPL"
     AAPL_call_contract.secType = "OPT"
-    AAPL_call_contract.exchange = "BOX"
+    AAPL_call_contract.exchange = "CBOE"
     AAPL_call_contract.currency = "USD"
     AAPL_call_contract.lastTradeDateOrContractMonth = "20220429"
     AAPL_call_contract.strike = "160"
@@ -241,7 +245,7 @@ def place_order(n_clicks):
     AAPL_put_contract = Contract()
     AAPL_put_contract.symbol = "AAPL"
     AAPL_put_contract.secType = "OPT"
-    AAPL_put_contract.exchange = "BOX"
+    AAPL_put_contract.exchange = "CBOE"
     AAPL_put_contract.currency = "USD"
     AAPL_put_contract.lastTradeDateOrContractMonth = "20220429"
     AAPL_put_contract.strike = "160"
@@ -251,7 +255,7 @@ def place_order(n_clicks):
     ADBE_call_contract = Contract()
     ADBE_call_contract.symbol = "ADBE"
     ADBE_call_contract.secType = "OPT"
-    ADBE_call_contract.exchange = "BOX"
+    ADBE_call_contract.exchange = "CBOE"
     ADBE_call_contract.currency = "USD"
     ADBE_call_contract.lastTradeDateOrContractMonth = "20220429"
     ADBE_call_contract.strike = "405"
@@ -261,7 +265,7 @@ def place_order(n_clicks):
     ADBE_put_contract = Contract()
     ADBE_put_contract.symbol = "ADBE"
     ADBE_put_contract.secType = "OPT"
-    ADBE_put_contract.exchange = "BOX"
+    ADBE_put_contract.exchange = "CBOE"
     ADBE_put_contract.currency = "USD"
     ADBE_put_contract.lastTradeDateOrContractMonth = "20220429"
     ADBE_put_contract.strike = "405"
