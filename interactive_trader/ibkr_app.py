@@ -25,6 +25,8 @@ class ibkr_app(EWrapper, EClient):
         self.contract_details = None
         self.contract_details_end = None
         self.matching_symbols = None
+        self.option_chain = None
+        self.option_chain_end = None
         self.order_status = pd.DataFrame(
             columns=['order_id', 'perm_id', 'status', 'filled', 'remaining',
                      'avg_fill_price', 'parent_id', 'last_fill_price',
@@ -144,3 +146,26 @@ class ibkr_app(EWrapper, EClient):
             ignore_index=True
         )
         self.order_status.drop_duplicates(inplace=True)
+
+    def securityDefinitionOptionParameter(self, reqId: int, exchange: str,
+        underlyingConId: int, tradingClass: str, multiplier: str,
+        expirations: SetOfString, strikes: SetOfFloat):
+        self.option_chain = pd.concat(
+            [
+                self.option_chain,
+                pd.DataFrame(
+                    {
+                        'exchange': [exchange],
+                        'underlying_conId': [underlyingConId],
+                        'underlying': [tradingClass],
+                        'multiplier': [multiplier],
+                        'expirations': [expirations],
+                        'strikes': [strikes]
+                    }
+                )
+            ],
+            ignore_index=True
+        )
+
+    def securityDefinitionOptionParameterEnd(self, reqId:int):
+        self.option_chain_end = reqId

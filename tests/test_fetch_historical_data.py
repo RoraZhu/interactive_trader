@@ -7,11 +7,16 @@ class fetch_historical_data_test_case(unittest.TestCase):
 
     def setUp(self):
         contract = Contract()
-        contract.symbol = 'EUR'
-        contract.secType = 'CASH'
-        contract.exchange = 'IDEALPRO'  # 'IDEALPRO' is the currency exchange.
-        contract.currency = 'USD'
-        self.historical_data = fetch_historical_data(contract)
+        # contract.symbol = 'EUR'
+        # contract.secType = 'CASH'
+        # contract.exchange = 'IDEALPRO'  # 'IDEALPRO' is the currency exchange.
+        # contract.currency = 'USD'
+        contract.symbol = "AAPL"
+        contract.secType = "STK"
+        contract.currency = "USD"
+        contract.exchange = "SMART"
+        self.historical_data = fetch_historical_data(contract=contract, durationStr='30 D',
+                          barSizeSetting='10 mins')
 
     def test_historical_data_is_dataframe(self):
         self.assertIsInstance(self.historical_data, pd.DataFrame)
