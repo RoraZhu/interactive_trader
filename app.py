@@ -306,5 +306,16 @@ def place_order(n_clicks):
 
     return ''
 
+
+@app.callback(
+    Output(component_id='body-div', component_property='children'),
+    Input(component_id='show-secret', component_property='n_clicks'),
+    State('ols-period', 'value'), State('vol-period', 'value'),
+    State('entry-thres', 'value'), State('exit-thres', 'value'),
+
+)
+def update_output(n_clicks, ols_period, vol_period, entry_thres, exit_thres):
+        return f"{ols_period},{vol_period},{entry_thres},{exit_thres}"
+
 if __name__ == "__main__":
-    app.run_server()
+    app.run_server(debug=True)
