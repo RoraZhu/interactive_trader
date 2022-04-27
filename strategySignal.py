@@ -14,14 +14,7 @@ import yfinance as yf
 from datetime import *
 warnings.filterwarnings('ignore')
 
-data = pd.read_csv("sampledata.csv",parse_dates=['date']).set_index('date')
 
-# parmas
-pair = ('AAPL','ADBE')
-ols_period = 1000
-vol_period = 100
-z_entry_threshold = 1.0
-z_exit_threshold = 0.5
 
 def realized_vol(period, data):
     vol = np.log(data/data.shift(1))**2
@@ -65,7 +58,7 @@ def market_signal(data, vol_period, ols_period, z_entry_threshold, z_exit_thresh
     z_exit_threshold: close position absolute threshold
 
     '''
-    data = data.copy().iloc[:vol_period+ols_period]
+    data = data.copy().iloc[-(vol_period+ols_period):]
     pair = (data.columns[0], data.columns[1])
 
     data["vol_"+pair[0]] = realized_vol(vol_period, data[pair[0]])
@@ -109,11 +102,34 @@ def market_signal(data, vol_period, ols_period, z_entry_threshold, z_exit_thresh
         = data[['longs', 'shorts', 'exits', 'long_market', 'short_market']].rolling(2, method="table",
                                                                                      min_periods=1).apply(
         signal_process, raw=True, engine="numba")
+
+
     vol_pair = ("vol_" + pair[0], "vol_" + pair[1])
-    data[pair[0]+'- a*'+pair[1]] = leverage_ratio(data, vol_pair)
+    # data[pair[0]+'- a*'+pair[1]] = leverage_ratio(data, vol_pair)
+
+    data.reset_index(inplace=True)
+    data = data.round(4)
+
+    signal_output = data[["date",pair[0],pair[1],vol_pair[0],vol_pair[1],'zscore']].copy()
+    signal_output['signal'] = data['long_market']-data['short_market']
+    op1 = "long "+pair[0]+" vol, short "+ pair[1]+" vol"
+    op2 = "long " + pair[1] + " vol, short " + pair[0] + " vol"
+    signal_output['operation'] = signal_output['signal'].apply(lambda x: op1 if x == 1.0 else (op2 if x == -1.0 else ""))
+    # signal_output['operation']
     # data.rename(columns={'AAPL': 'aapl_close', 'ADBE': 'adbe_close'}, inplace=True)
-    return data
+    today = signal_output['date'].iloc[-1].date()
+    signal_output = signal_output[signal_output['date'] >= pd.Timestamp(today)].iloc[::-1]
+    print(today)
+    return signal_output
 
+if __name__ == '__main__':
+    data = pd.read_csv("sampledata.csv",parse_dates=['date']).set_index('date')
 
-signal = market_signal(data, vol_period, ols_period, z_entry_threshold, z_exit_threshold)
+    # parmas
+    pair = ('AAPL', 'ADBE')
+    ols_period = 1000
+    vol_period = 100
+    z_entry_threshold = 1.0
+    z_exit_threshold = 0.5
+    signal = market_signal(data, vol_period, ols_period, z_entry_threshold, z_exit_threshold)
 

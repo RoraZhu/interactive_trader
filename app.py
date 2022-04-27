@@ -16,6 +16,7 @@ from ibapi.order import Order
 import time
 import threading
 import pandas as pd
+from strategySignal import market_signal
 
 CONTENT_STYLE = {
     "transition": "margin-left .5s",
@@ -312,14 +313,17 @@ def place_order(n_clicks):
 
 
 @app.callback(
-    Output(component_id='body-div', component_property='children'),
-    Input(component_id='show-secret', component_property='n_clicks'),
+    [Output('body-div', 'children'),Output('trade-signal', 'data')],
+    Input('show-secret', 'n_clicks'),
     State('ols-period', 'value'), State('vol-period', 'value'),
     State('entry-thres', 'value'), State('exit-thres', 'value'),
-
 )
 def update_output(n_clicks, ols_period, vol_period, entry_thres, exit_thres):
-        return f"{ols_period},{vol_period},{entry_thres},{exit_thres}"
+    data = pd.read_csv("sampledata.csv", parse_dates=['date']).set_index('date')
+    signal = market_signal(data, vol_period, ols_period, entry_thres, exit_thres)
+
+
+    return f"{ols_period},{vol_period},{entry_thres},{exit_thres}", signal.to_dict('records')
 
 if __name__ == "__main__":
     app.run_server(debug=True)
