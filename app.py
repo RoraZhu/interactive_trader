@@ -1,7 +1,11 @@
 import dash
 import dash_bootstrap_components as dbc
+import numpy as np
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
+import plotly.graph_objects as go
+
+from page_2 import page_2
 from page_1 import page_1
 from order_page import order_page
 from error_page import error_page
@@ -37,7 +41,10 @@ CONTENT_STYLE1 = {
 order_status = ""
 errors = ""
 connected = ""
-
+adobe_strike = 0
+apple_strike = 0
+apple_quantity = 0
+adobe_quantity = 0
 ibkr_async_conn = ibkr_app()
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -139,6 +146,8 @@ def render_page_content(pathname):
         return order_page
     elif pathname == "/errors":
         return error_page
+    elif pathname == "/graph":
+        return page_2
     # If the user tries to reach a different page, return a 404 message
     return html.Div(
         [
@@ -324,6 +333,55 @@ def update_output(n_clicks, ols_period, vol_period, entry_thres, exit_thres):
 
 
     return f"{ols_period},{vol_period},{entry_thres},{exit_thres}", signal.to_dict('records')
+
+@app.callback([Output("surface-graph", "figure"), Output('test', 'children')],
+              [Input('graph-link', "n_clicks")])
+def update_graph(n_clicks):
+    global apple_strike
+    global apple_quantity
+    global adobe_strike
+    global adobe_quantity
+    apple_strike = 100
+    adobe_strike = 200
+    apple_quantity = 5
+    adobe_quantity = -2
+    x_start = apple_strike * 0.75
+    x_end = apple_strike * 1.25
+    y_start = adobe_strike * 0.75
+    y_end = adobe_strike * 1.25
+    step_x = max((x_end - x_start) / 100, 0.0001)
+    step_y = max((y_end - y_start) / 100, 0.0001)
+
+    x_data = np.arange(x_start, x_end, step_x)
+    y_data = np.arange(y_start, y_end, step_y)
+    z_data = []
+    for i in range(x_data.size):
+        x_profit = (max(0, x_data[i] - apple_strike) + max(0, apple_strike - x_data[i])) * apple_quantity
+        data = []
+        for j in range(y_data.size):
+            y_profit = (max(0, y_data[j] - adobe_strike) + max(0, adobe_strike - y_data[j])) * adobe_quantity
+            data.append(x_profit + y_profit)
+        z_data.append(data)
+
+    fig = go.Figure(data=[go.Surface(z=np.array(z_data), x=x_data, y=y_data)])
+    print("z", len(z_data))
+    #print(z_data)
+    print("x", x_data.size)
+    # print(x_data)
+    print("y", y_data.size)
+    # print(y_data)
+    fig.update_layout(title='Payoff Graph', autosize=True)
+
+    # z_data = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/api_docs/mt_bruno_elevation.csv')
+    # z = z_data.values
+    # sh_0, sh_1 = z.shape
+    # x, y = np.linspace(0, 1, sh_0), np.linspace(0, 1, sh_1)
+    # fig = go.Figure(data=[go.Surface(z=z, x=x, y=y)])
+    # fig.update_layout(title='Mt Bruno Elevation', autosize=False,
+    #                   width=500, height=500,
+    #                   margin=dict(l=65, r=50, b=65, t=90))
+
+    return fig, ''
 
 if __name__ == "__main__":
     app.run_server(debug=True)
