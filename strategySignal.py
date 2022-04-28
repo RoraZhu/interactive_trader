@@ -1,16 +1,12 @@
 import numpy as np
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
 import time
 import statsmodels.api as sm
-from scipy.stats import norm,kstest,shapiro,t
 import warnings
 import statistics
 desired_width=320
 pd.set_option('display.width', desired_width)
 pd.set_option('display.max_columns',10)
-import yfinance as yf
 from datetime import *
 warnings.filterwarnings('ignore')
 
