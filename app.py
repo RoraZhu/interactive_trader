@@ -21,6 +21,8 @@ import time
 import threading
 import pandas as pd
 from strategySignal import market_signal
+import settings
+
 
 CONTENT_STYLE = {
     "transition": "margin-left .5s",
@@ -41,10 +43,6 @@ CONTENT_STYLE1 = {
 order_status = ""
 errors = ""
 connected = ""
-adobe_strike = 0
-apple_strike = 0
-apple_quantity = 0
-adobe_quantity = 0
 ibkr_async_conn = ibkr_app()
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -337,14 +335,10 @@ def update_output(n_clicks, ols_period, vol_period, entry_thres, exit_thres):
 @app.callback([Output("surface-graph", "figure"), Output('test', 'children')],
               [Input('graph-link', "n_clicks")])
 def update_graph(n_clicks):
-    global apple_strike
-    global apple_quantity
-    global adobe_strike
-    global adobe_quantity
-    apple_strike = 100
-    adobe_strike = 200
-    apple_quantity = 5
-    adobe_quantity = -2
+    apple_strike = settings.strikes['AAPL']
+    adobe_strike = settings.strikes['ADBE']
+    apple_quantity = settings.quantities["AAPL"] * settings.isLongAAPL
+    adobe_quantity = settings.quantities['ADBE'] * settings.isLongAAPL
     x_start = apple_strike * 0.75
     x_end = apple_strike * 1.25
     y_start = adobe_strike * 0.75

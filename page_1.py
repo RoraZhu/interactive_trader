@@ -26,6 +26,8 @@ page_1 = html.Div(
      ]),
     html.Div(dash_table.DataTable(id="trade-signal"),
              style = {'width': '800px',})
+
+
      ],
 
 )
