@@ -251,7 +251,7 @@ def place_order(contract, order, hostname=default_hostname,
         time.sleep(0.01)
 
     app.placeOrder(app.next_valid_id, contract, order)
-    while not ('Submitted' in set(app.order_status['status'])):
+    while not ('Submitted' or 'Filled' in set(app.order_status['status'])):
         time.sleep(0.25)
 
     app.disconnect()
