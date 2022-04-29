@@ -317,10 +317,10 @@ def place_order(n_clicks):
     #     order
     # )
 
-    ibkr_async_conn.placeOrder(ibkr_async_conn.next_valid_id, AAPL_call_contract, buy_order)
-    ibkr_async_conn.placeOrder(ibkr_async_conn.next_valid_id, AAPL_put_contract, buy_order)
-    ibkr_async_conn.placeOrder(ibkr_async_conn.next_valid_id, ADBE_call_contract, sell_order)
-    ibkr_async_conn.placeOrder(ibkr_async_conn.next_valid_id, ADBE_put_contract, sell_order)
+    # ibkr_async_conn.placeOrder(ibkr_async_conn.next_valid_id, AAPL_call_contract, buy_order)
+    # ibkr_async_conn.placeOrder(ibkr_async_conn.next_valid_id, AAPL_put_contract, buy_order)
+    # ibkr_async_conn.placeOrder(ibkr_async_conn.next_valid_id, ADBE_call_contract, sell_order)
+    # ibkr_async_conn.placeOrder(ibkr_async_conn.next_valid_id, ADBE_put_contract, sell_order)
 
     return ''
 
