@@ -5,7 +5,7 @@ from interactive_trader import *
 
 hostname = '127.0.0.1'
 port = 7497
-client_id = 10645 # can set and use your Master Client ID
+client_id = 1 # can set and use your Master Client ID
 
 value = "EUR.USD" # This is what your text input looks like on your app
 
@@ -35,7 +35,7 @@ contract_crypto.exchange = "PAXOS"
 mkt_order = Order()
 mkt_order.action = "BUY"
 mkt_order.orderType = "MKT"
-mkt_order.totalQuantity = 100
+mkt_order.totalQuantity = 1
 
 # Example LIMIT Order
 lmt_order = Order()
@@ -60,13 +60,13 @@ lmt_order.account = 'DU1267861'
 
 # Place orders!
 order_response_stk_lmt = place_order(contract_stk, lmt_order)
-order_response_cp_mkt = place_order(contract_cp, mkt_order)
-order_response_crypto_mkt = place_order(contract_crypto, mkt_order)
+# order_response_cp_mkt = place_order(contract_cp, mkt_order)
+# order_response_crypto_mkt = place_order(contract_crypto, mkt_order)
 
 # Print the info returned by placing orders:
 print(order_response_stk_lmt)
-print(order_response_crypto_mkt)
-print(order_response_cp_mkt)
+# print(order_response_crypto_mkt)
+# print(order_response_cp_mkt)
 
 # You can select what you want from the response, for example:
-print(order_response_cp_mkt['perm_id'])
+# print(order_response_cp_mkt['perm_id'])

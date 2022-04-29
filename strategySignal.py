@@ -43,7 +43,7 @@ def cal_residue_zscore(vol, pair):
     b = results.params[0]
     residue = Y - a*X - b
     residue = (residue-np.mean(residue))/residue.std()
-    return residue
+    return residue, a
 
 
 def market_signal(data, vol_period, ols_period, z_entry_threshold, z_exit_threshold):
@@ -61,12 +61,13 @@ def market_signal(data, vol_period, ols_period, z_entry_threshold, z_exit_thresh
     data["vol_"+pair[1]] = realized_vol(vol_period, data[pair[1]])
 
     data = data.iloc[vol_period:]
-    data['zscore'] = cal_residue_zscore(data, ("vol_"+pair[0],"vol_"+pair[1]))
+    data['zscore'], hedge_ratio = cal_residue_zscore(data, ("vol_"+pair[0],"vol_"+pair[1]))
 
     data['longs'] = (data['zscore'] <= -z_entry_threshold) * 1.0
     data['shorts'] = (data['zscore'] >= z_entry_threshold) * 1.0
     data['exits'] = (np.abs(data['zscore']) <= z_exit_threshold) * 1.0
 
+    # data = data.iloc[-2:]
     data['long_market'] = 0.0
     data['short_market'] = 0.0
 
@@ -102,21 +103,39 @@ def market_signal(data, vol_period, ols_period, z_entry_threshold, z_exit_thresh
 
     vol_pair = ("vol_" + pair[0], "vol_" + pair[1])
     # data[pair[0]+'- a*'+pair[1]] = leverage_ratio(data, vol_pair)
-
+    data['hedge_ratio'] = ""
+    data['hedge_ratio'].iloc[-1] = np.around(hedge_ratio,4)
     data.reset_index(inplace=True)
     data = data.round(4)
 
-    signal_output = data[["date",pair[0],pair[1],vol_pair[0],vol_pair[1],'zscore']].copy()
+    signal_output = data[["date",pair[0],pair[1],vol_pair[0],vol_pair[1],'zscore','hedge_ratio']].copy()
     signal_output['signal'] = data['long_market']-data['short_market']
     op1 = "long "+pair[0]+" vol, short "+ pair[1]+" vol"
     op2 = "long " + pair[1] + " vol, short " + pair[0] + " vol"
+
     signal_output['operation'] = signal_output['signal'].apply(lambda x: op1 if x == 1.0 else (op2 if x == -1.0 else ""))
     # signal_output['operation']
     # data.rename(columns={'AAPL': 'aapl_close', 'ADBE': 'adbe_close'}, inplace=True)
     today = signal_output['date'].iloc[-1].date()
     signal_output = signal_output[signal_output['date'] >= pd.Timestamp(today)].iloc[::-1]
-    print(today)
-    return signal_output
+    # print(today)
+    return signal_output, hedge_ratio
+
+def signal_historical(data, vol_period, ols_period, z_entry_threshold, z_exit_threshold, duration=10):
+    history = pd.DataFrame()
+    for i in range(duration,0,-1):
+        his = data.iloc[:-i]
+        signal, hedge_ratio = market_signal(his, vol_period, ols_period, z_entry_threshold, z_exit_threshold)
+        history = history.append(signal)
+    history.to_csv("./data/signal_update.csv", index=False)
+
+
+
+def trade_quantity(hedge_ratio, first_quantity):
+    aapl_quantity = first_quantity
+    adbe_quantity = round(first_quantity * hedge_ratio)
+    return aapl_quantity, adbe_quantity
+
 
 if __name__ == '__main__':
     data = pd.read_csv("sampledata.csv",parse_dates=['date']).set_index('date')
@@ -127,5 +146,7 @@ if __name__ == '__main__':
     vol_period = 100
     z_entry_threshold = 1.0
     z_exit_threshold = 0.5
-    signal = market_signal(data, vol_period, ols_period, z_entry_threshold, z_exit_threshold)
+    signal, hedge_ratio = market_signal(data, vol_period, ols_period, z_entry_threshold, z_exit_threshold)
+    # signal_historical(data, vol_period, ols_period, z_entry_threshold, z_exit_threshold)
+
 
