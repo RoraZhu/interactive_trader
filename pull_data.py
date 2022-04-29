@@ -49,7 +49,7 @@ def pull_new(symbols, interval, durationStr, barSize):
     # loop.start()
 
 
-def pull_data(symbols, interval=10, historicalDuration="10 D",
+def pull_data(symbols, interval=10, historicalDuration="30000 S",
               newDuration="120 S", barSize="1 min"):
     print("pull data start...")
     pull_historical(symbols, historicalDuration, barSize)
