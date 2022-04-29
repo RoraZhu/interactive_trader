@@ -22,6 +22,7 @@ import threading
 import pandas as pd
 from strategySignal import market_signal
 import settings
+import find_best_option
 
 
 CONTENT_STYLE = {
@@ -364,6 +365,14 @@ def update_graph(n_clicks):
     # print(x_data)
     print("y", y_data.size)
     # print(y_data)
+    fig.update_scenes(xaxis_title={'text': 'AAPL Price'})
+    fig.update_scenes(yaxis_title={'text': 'ADBE Price'})
+    fig.update_scenes(zaxis_title={'text': 'Payoff'})
+    x_price = find_best_option._find_underlying("AAPL")
+    y_price = find_best_option._find_underlying("ADBE")
+    z_value = (max(0, x_price - apple_strike) + max(0, apple_strike - x_price)) * apple_quantity + \
+              (max(0, y_price - adobe_strike) + max(0, adobe_strike - y_price)) * adobe_quantity
+    fig.add_trace(go.Scatter3d(x=[x_price], y=[y_price], z=[z_value], name='Current Position'))
     fig.update_layout(title='Payoff Graph', autosize=True)
 
     # z_data = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/api_docs/mt_bruno_elevation.csv')
