@@ -30,7 +30,7 @@ page_1 = html.Div(
         dcc.Slider(0, 20000, 1000, value=10000,id = 'ols-period')
     ]),
      html.Div(["vol period:",
-               dcc.Slider(0, 1000, 50, value=1000,id = 'vol-period')
+               dcc.Slider(0, 1000, 50, value=100,id = 'vol-period')
                ]),
      html.Div(["entry threshold absolute:",
                dcc.Slider(0, 3, 0.1, value=1, id='entry-thres')
@@ -39,7 +39,7 @@ page_1 = html.Div(
                dcc.Slider(0, 3, 0.1, value=0.5, id='exit-thres')
                ]),
      html.Div(["AAPL quantity:",
-               dcc.Slider(10, 30, 1, value=20, id='con-quantity')
+               dcc.Slider(10, 30, 1, value=10, id='con-quantity')
                ]),
      dcc.Interval(id='interval1', interval=60 * 1000, n_intervals=0),
      html.H2(id='label1', children=''),
