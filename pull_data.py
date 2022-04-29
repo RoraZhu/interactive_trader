@@ -3,7 +3,7 @@ import numpy as np
 from threading import Timer
 from create_contract import create_stk_contract
 from interactive_trader.synchronous_functions import fetch_historical_data
-
+import datetime
 
 """
 pull_data.py is used to pull historical data and automatically update minute level data to the csv files.
@@ -45,17 +45,20 @@ def pull_new(symbols, interval, durationStr, barSize):
 
         original.to_csv("./data/" + symbol + ".csv", index=False)
         print(symbol + " updated")
-    loop = Timer(interval, pull_new, [symbols, interval, durationStr, barSize])
-    loop.start()
+    # loop = Timer(interval, pull_new, [symbols, interval, durationStr, barSize])
+    # loop.start()
 
 
-def pull_data(symbols, interval=120, historicalDuration="30000 S",
+def pull_data(symbols, interval=10, historicalDuration="10 D",
               newDuration="120 S", barSize="1 min"):
+    print("pull data start...")
     pull_historical(symbols, historicalDuration, barSize)
-    timer = Timer(0.01, pull_new, [symbols, interval, newDuration, barSize])
-    timer.start()
+    pull_new(symbols, interval, newDuration, barSize)
+    # timer = Timer(0.01, pull_new, [symbols, interval, newDuration, barSize])
+    # timer.start()
 
-
+# symbols = ["AAPL", "ADBE"]
+# pull_data(symbols)
 if __name__ == "__main__":
     symbols = ["AAPL", "ADBE"]
     pull_data(symbols)

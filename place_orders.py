@@ -3,7 +3,7 @@ from find_best_option import find_best_option
 from create_contract import create_opt_contract
 from create_order import create_order
 from interactive_trader.synchronous_functions import place_order
-
+import pandas as pd
 """
 place_orders.py handles order placement.
 
@@ -20,6 +20,15 @@ main function to call:
 
 for concrete usage, see if __name__ == "__main__"
 """
+def globalToCsv(settings):
+    col = ['AAPL','ADBE']
+
+    global_setting = pd.DataFrame({
+        'strikes':[settings.strikes["AAPL"],settings.strikes["ADBE"]],
+        'quantities':[settings.quantities["AAPL"],settings.quantities["ADBE"]],
+        'isLongAAPL': [settings.isLongAAPL, 0]
+    }, index = col).T.reset_index()
+    global_setting.to_csv("./data/settings.csv",index=False)
 
 
 def addGlobal(isLongAAPL, AAPLQuantity, ADBEQuantity, AAPLStrike, ADBEStrike):
@@ -30,6 +39,7 @@ def addGlobal(isLongAAPL, AAPLQuantity, ADBEQuantity, AAPLStrike, ADBEStrike):
     settings.isLongAAPL = isLongAAPL if isLongAAPL == 1 else -1
     if AAPLQuantity == 0 and ADBEQuantity == 0:
         settings.isLongAAPL = 0
+    globalToCsv(settings)
 
 
 def place(isLongAAPL, AAPLQuantity, AAPLExpiration, AAPLStrike, ADBEQuantity, ADBEExpiration, ADBEStrike):
