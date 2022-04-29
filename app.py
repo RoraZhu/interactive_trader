@@ -4,10 +4,7 @@ import numpy as np
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-from threading import Timer
-from place_orders import *
-from create_contract import create_stk_contract
+
 from page_2 import page_2
 from page_1 import page_1
 from order_page import order_page
@@ -23,9 +20,9 @@ from ibapi.order import Order
 import time
 import threading
 import pandas as pd
-from strategySignal import market_signal, trade_quantity
-from pull_data import pull_data
+from strategySignal import market_signal
 import settings
+
 
 CONTENT_STYLE = {
     "transition": "margin-left .5s",
@@ -49,7 +46,7 @@ connected = ""
 ibkr_async_conn = ibkr_app()
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
-app.config.suppress_callback_exceptions = True
+
 app.layout = html.Div(
     [
         dcc.Store(id='side_click'),
@@ -179,15 +176,15 @@ def async_handler(async_status, master_client_id, port, hostname):
     timeout_sec = 5
 
     start_time = datetime.now()
-    # while not ibkr_async_conn.isConnected():
-    #     time.sleep(0.01)
-    #     if (datetime.now() - start_time).seconds > timeout_sec:
-    #         ibkr_async_conn.disconnect()
-    #         raise Exception(
-    #             "set_up_async_connection",
-    #             "timeout",
-    #             "couldn't connect to IBKR"
-    #         )
+    while not ibkr_async_conn.isConnected():
+        time.sleep(0.01)
+        if (datetime.now() - start_time).seconds > timeout_sec:
+            ibkr_async_conn.disconnect()
+            raise Exception(
+                "set_up_async_connection",
+                "timeout",
+                "couldn't connect to IBKR"
+            )
 
     def run_loop():
         ibkr_async_conn.run()
@@ -206,8 +203,6 @@ def async_handler(async_status, master_client_id, port, hostname):
 
     global connected
     connected = ibkr_async_conn.isConnected()
-
-    ibkr_async_conn.disconnect()
 
     return "Connection is " + str(connected)
 
@@ -300,7 +295,7 @@ def place_order(n_clicks):
     buy_order = Order()
     buy_order.action = "BUY"
     buy_order.orderType = "MKT"
-    buy_order.totalQuantity = -1
+    buy_order.totalQuantity = 100
 
     sell_order = Order()
     sell_order.action = "SELL"
@@ -325,68 +320,17 @@ def place_order(n_clicks):
 
 
 @app.callback(
-    [Output('body-div', 'children'),Output('trade-signal', 'data'),Output('label1', 'children'),Output('vol-graph','figure')],
-    [Input('show-secret', 'n_clicks'),Input('interval1', 'n_intervals')],
+    [Output('body-div', 'children'),Output('trade-signal', 'data')],
+    Input('show-secret', 'n_clicks'),
     State('ols-period', 'value'), State('vol-period', 'value'),
     State('entry-thres', 'value'), State('exit-thres', 'value'),
-    State('con-quantity','value')
 )
-def update_output(n_clicks,n_intervals, ols_period, vol_period, entry_thres, exit_thres, con_quantity):
-    symbols = ["AAPL", "ADBE"]
-    pull_data(symbols)
-    # data = pd.read_csv("sampledata.csv", parse_dates=['date']).set_index('date')
-    AAPL = pd.read_csv("./data/AAPL.csv", parse_dates=['date'])[['date','close']]
-    AAPL.rename(columns={'close': 'AAPL'}, inplace=True)
-    ADBE = pd.read_csv("./data/ADBE.csv", parse_dates=['date'])[['date','close']]
-    ADBE.rename(columns={'close': 'ADBE'}, inplace=True)
-    data = AAPL.merge(ADBE, on="date").set_index('date')
+def update_output(n_clicks, ols_period, vol_period, entry_thres, exit_thres):
+    data = pd.read_csv("sampledata.csv", parse_dates=['date']).set_index('date')
+    signal = market_signal(data, vol_period, ols_period, entry_thres, exit_thres)
 
-    signal, hedge_ratio = market_signal(data, vol_period, ols_period, entry_thres, exit_thres)
-    # print(signal)
-    quantity_pair = trade_quantity(hedge_ratio, con_quantity)
-    now = datetime.now().strftime("%H:%M:%S")
-    fig = make_subplots(rows=1, cols=2)
-    fig.add_trace(go.Scatter(x=signal['date'], y=signal['vol_AAPL'], name='vol_AAPL'), row=1, col=1)
-    fig.add_trace(go.Scatter(x=signal['date'], y=signal['vol_ADBE'], name='vol_ADBE'), row=1, col=1)
-    fig.add_trace(go.Scatter(x=signal['date'], y=signal['zscore'], name='zscore'), row=1, col=2)
 
-    if n_clicks==None:
-        return "Please click to start runing strategy",signal.to_dict('records'),"",fig
-
-    local_settings = pd.read_csv("./data/settings.csv").set_index('index')
-
-    addGlobal(local_settings.loc['isLongAAPL','AAPL'], local_settings.loc['quantities','AAPL'],
-              local_settings.loc['quantities','ADBE'], local_settings.loc['strikes','AAPL'], local_settings.loc['strikes','ADBE'])
-
-    print("settings_local:",local_settings)
-##################place order######################################################
-    conIds = {"AAPL": 265598, "ADBE": 265768}
-    strategy_signal = (settings.isLongAAPL, int(signal['signal'].iloc[0]))
-    print("signal:",strategy_signal)
-
-    AAPLPrevQuantity = settings.quantities["AAPL"]
-    ADBEPrevQuantity = settings.quantities["ADBE"]
-    AAPLCurrQuantity = quantity_pair[0]
-    ADBECurrQuantity = quantity_pair[1]
-
-    prevSignal, currSignal = strategy_signal
-    place_orders(prevSignal, currSignal, AAPLCurrQuantity, ADBECurrQuantity,
-                 AAPLPrevQuantity, ADBEPrevQuantity, conIds)
-
-    if settings.isLongAAPL!=0:
-        info = f"The trading signal is {strategy_signal}. We hold {settings.isLongAAPL * settings.quantities['AAPL']} AAPL straddle(s) at ${settings.strikes['AAPL']}\n" \
-               f"{-settings.isLongAAPL * settings.quantities['ADBE']} ADBE straddle(s) at ${settings.strikes['ADBE']}"
-    else:
-        info = f"The trading signal is {strategy_signal}. We don't plan to hold any positions."
-
-    return info, signal.to_dict('records'),'Last Strategy Update: ' + str(now),fig
-
-#
-# @app.callback(dash.dependencies.Output('label1', 'children'),
-#     [dash.dependencies.Input('interval1', 'n_intervals')])
-# def update_interval(n):
-#     now = datetime.now().strftime("%H:%M:%S")
-#     return 'last calculate: ' + str(now)
+    return f"{ols_period},{vol_period},{entry_thres},{exit_thres}", signal.to_dict('records')
 
 @app.callback([Output("surface-graph", "figure"), Output('test', 'children')],
               [Input('graph-link', "n_clicks")])
