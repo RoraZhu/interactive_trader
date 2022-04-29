@@ -45,7 +45,7 @@ page_1 = html.Div(
      html.H2(id='label1', children=''),
 
      html.Div([
-        html.Button('TRADE', id='show-secret'),
+        html.Button('Start', id='show-secret'),
         html.Br(),
         html.Div(id='body-div'),
         html.Br(),
