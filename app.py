@@ -370,9 +370,11 @@ def update_output(n_clicks,n_intervals, ols_period, vol_period, entry_thres, exi
     AAPLCurrQuantity = quantity_pair[0]
     ADBECurrQuantity = quantity_pair[1]
 
+
     prevSignal, currSignal = strategy_signal
-    place_orders(prevSignal, currSignal, AAPLCurrQuantity, ADBECurrQuantity,
-                 AAPLPrevQuantity, ADBEPrevQuantity, conIds)
+    if prevSignal!=currSignal:
+        place_orders(prevSignal, currSignal, AAPLCurrQuantity, ADBECurrQuantity,
+                     AAPLPrevQuantity, ADBEPrevQuantity, conIds)
 
     if settings.isLongAAPL!=0:
         info = f"The trading signal is {strategy_signal}. We hold {settings.isLongAAPL * settings.quantities['AAPL']} AAPL straddle(s) at ${settings.strikes['AAPL']}\n" \

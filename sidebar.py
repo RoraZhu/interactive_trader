@@ -56,7 +56,7 @@ sidebar = html.Div(
         html.P(children="Connection is False", id='ibkr-async-conn-status'),
         html.P(children='', id='uses-async'),
         html.Hr(),
-        html.Button('Trade', id='trade-button', n_clicks=0),
+        # html.Button('Trade', id='trade-button', n_clicks=0),
 
     ],
     id="sidebar",
