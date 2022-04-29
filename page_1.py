@@ -24,12 +24,13 @@ import plotly.graph_objects as go
 
 
 page_1 = html.Div(
-    [html.P("This is the content of parameter setting!"),
+    [html.H3("Welcome to our high-frequency volatility pair trading website!"),
+    html.P("Below is our parameter tuning function, our data download and policy will be executed every 1 minute! Please click to start!"),
     html.Div(["OLS period:",
-        dcc.Slider(0, 20000, 1000, value=1000,id = 'ols-period')
+        dcc.Slider(0, 20000, 1000, value=10000,id = 'ols-period')
     ]),
      html.Div(["vol period:",
-               dcc.Slider(0, 1000, 50, value=100,id = 'vol-period')
+               dcc.Slider(0, 1000, 50, value=1000,id = 'vol-period')
                ]),
      html.Div(["entry threshold absolute:",
                dcc.Slider(0, 3, 0.1, value=1, id='entry-thres')
@@ -41,10 +42,10 @@ page_1 = html.Div(
                dcc.Slider(10, 30, 1, value=20, id='con-quantity')
                ]),
      dcc.Interval(id='interval1', interval=60 * 1000, n_intervals=0),
-     html.H1(id='label1', children=''),
+     html.H2(id='label1', children=''),
 
      html.Div([
-        html.Button('Update Parameters', id='show-secret'),
+        html.Button('Run Vol Arbitrage Strategy', id='show-secret'),
         html.Br(),
         html.Div(id='body-div'),
         html.Br(),

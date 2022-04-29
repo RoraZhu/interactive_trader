@@ -363,7 +363,7 @@ def update_output(n_clicks,n_intervals, ols_period, vol_period, entry_thres, exi
     conIds = {"AAPL": 265598, "ADBE": 265768}
     strategy_signal = (settings.isLongAAPL, int(signal['signal'].iloc[0]))
     print("signal:",strategy_signal)
-    signals = [(0, 0), (0, 1), (1, 1), (1, 0), (0, -1), (-1, -1), (-1, 1), (1, -1), (-1, 0)]
+
     AAPLPrevQuantity = settings.quantities["AAPL"]
     ADBEPrevQuantity = settings.quantities["ADBE"]
     AAPLCurrQuantity = quantity_pair[0]
@@ -373,7 +373,13 @@ def update_output(n_clicks,n_intervals, ols_period, vol_period, entry_thres, exi
     place_orders(prevSignal, currSignal, AAPLCurrQuantity, ADBECurrQuantity,
                  AAPLPrevQuantity, ADBEPrevQuantity, conIds)
 
-    return f"The hedge ratio is {round(hedge_ratio,4)}, the quantity pair for (AAPL, ADBE) is {quantity_pair}", signal.to_dict('records'),'last calculate: ' + str(now),fig
+    if settings.isLongAAPL!=0:
+        info = f"The trading signal is {strategy_signal}. We hold {settings.isLongAAPL * settings.quantities['AAPL']} AAPL straddle(s) at ${settings.strikes['AAPL']}\n" \
+               f"{-settings.isLongAAPL * settings.quantities['ADBE']} ADBE straddle(s) at ${settings.strikes['ADBE']}"
+    else:
+        info = f"The trading signal is {strategy_signal}. We don't plan to hold any positions."
+
+    return info, signal.to_dict('records'),'Last Strategy Update: ' + str(now),fig
 
 #
 # @app.callback(dash.dependencies.Output('label1', 'children'),
