@@ -25,7 +25,7 @@ import plotly.graph_objects as go
 
 page_1 = html.Div(
     [html.H3("Welcome to our high-frequency volatility pair trading website!"),
-    html.P("Below is our parameter tuning function, our data download and policy will be executed every 1 minute! Please click to start!"),
+    html.P("Below is our parameter tuning function, our data download and strategy will be executed every 1 minute! Please click to start!"),
     html.Div(["OLS period:",
         dcc.Slider(0, 20000, 1000, value=10000,id = 'ols-period')
     ]),
